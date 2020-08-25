@@ -1,0 +1,85 @@
+############################################################################
+
+# Soft Robotics Lab, Oxford Uni.
+# Template for simulating pneumatic actuator on Sofa
+
+# Wenye Ouyang (Owen)
+# wenye@robots.ox.ac.uk
+# Last review date: 20/4/2020
+
+############################################################################
+
+import Sofa
+import os
+#import a floor from soft robot template library
+from stlib.physics.rigid import Floor
+
+path = os.path.dirname(os.path.abspath(__file__))
+
+#Create a scene
+def createScene(rootNode):
+
+
+        #Display options
+        rootNode.createObject('VisualStyle', displayFlags='showVisualModels showBehaviorModels hideCollisionModels hideBoundingCollisionModels showForceFields hideInteractionForceFields hideWireframe')
+
+        #load plugins
+        rootNode.createObject('RequiredPlugin', name='SoftRobots', pluginName='SoftRobots')
+        rootNode.createObject('RequiredPlugin', name='SofaPython', pluginName='SofaPython')
+
+        #Define gravity along three axis
+        rootNode.findData('gravity').value='-9810 0 0';
+        rootNode.createObject('PythonScriptController', filename="controller/Controller.py", classname="controller")
+        rootNode.createObject('FreeMotionAnimationLoop')
+        rootNode.createObject('GenericConstraintSolver', tolerance="1e-12", maxIterations="10000")
+
+        #Load a floor in the scene
+        Floor(rootNode, translation=[-5,25,25], rotation = [0,0,90] , isAStaticObject=True)
+
+        #Load the actuator
+        pneu = rootNode.createChild('pneu')
+        pneu.createObject('EulerImplicit', name='odesolver', rayleighStiffness='0.1', rayleighMass='0.1')
+        pneu.createObject('SparseLDLSolver', name='directSolver')
+
+        #It has to be a file with volumetric mesh
+        #Recommend CGAL/gmsh
+        #More details can be found in tutorial "Mesh generation"
+        pneu.createObject('MeshVTKLoader', name='loader', filename='data/mesh/TestU0.vtu')
+        pneu.createObject('Mesh', src='@loader', name='container')
+
+        #Specify mesh type, in this example we use tetrahedra
+        pneu.createObject('MechanicalObject', name='tetras', template='Vec3d', showObject='true', showObjectScale='1')
+
+        #Speficy mechanical properties
+        pneu.createObject('TetrahedronFEMForceField', template='Vec3d', name='FEM', method='large', poissonRatio='0.3',  youngModulus='33.08', drawAsEdges="true")
+        pneu.createObject('UniformMass', totalMass='0.00002054')
+
+        #Define stiff layer
+        pneu.createObject('BoxROI', name='boxROISubTopo', box='56 -5 -10 60 40 50', drawBoxes='false')
+        modelSubTopo = pneu.createChild('modelSubTopo')
+        modelSubTopo.createObject('Mesh', position='@loader.position', tetrahedra="@boxROISubTopo.tetrahedraInROI", name='container')
+        modelSubTopo.createObject('TetrahedronFEMForceField', template='Vec3d', name='FEM', method='large', poissonRatio='0.3',  youngModulus='150000')
+
+        #Define boundry layer
+        pneu.createObject('BoxROI', name='boxROI', box='-5 -5 -10 3 40 50', drawBoxes= 'false')
+        pneu.createObject('RestShapeSpringsForceField', points='@boxROI.indices', stiffness='1e12', angularStiffness='1e12')
+        pneu.createObject('LinearSolverConstraintCorrection', solverName='directSolver')
+
+        #Define the cavity inside the chambers
+        cavity = pneu.createChild('cavity')
+        cavity.createObject('MeshSTLLoader', name='cavityLoader', filename='data/mesh/CavU.stl')
+        cavity.createObject('Mesh', src='@cavityLoader', name='cavityMesh')
+        cavity.createObject('MechanicalObject', name='cavity')
+        cavity.createObject('SurfacePressureConstraint', name="SurfacePressureConstraint", template='Vec3d', value="0", triangles='@cavityMesh.triangles', valueType="pressure")
+        cavity.createObject('BarycentricMapping', name='mapping', mapForces='false', mapMasses='false')
+
+        #Export info
+        #pneu.createObject('WriteState', filename=path+'/data/pneu.data', writeX='true', writeX0='false',writeV='false', DOFsX='10000')
+        #pneu.createObject('WriteState', name="writeState7", listening="1", filename="pneu.data"  writeX="1"  writeV="1"  writeF="1")
+
+        #OPTIONAL: Create a visual model for the actuators
+
+        #modelVisu = pneu.createChild('visu')
+        #modelVisu.createObject('MeshSTLLoader', name="loader", filename="data/mesh/TestU.stl")
+        #modelVisu.createObject('OglModel', src="@loader", template='ExtVec3f', color='0.7 0.7 0.7 0.6',translation = [0,0,0],rotation= [0,0,0])
+        #modelVisu.createObject('BarycentricMapping')
