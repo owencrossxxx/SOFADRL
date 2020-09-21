@@ -17,7 +17,7 @@ from stlib.physics.rigid import Floor
 from stlib.scene import MainHeader, ContactHeader
 
 density = 1.14
-volume = 32.171
+volume = 21.013
 mass = density*volume*1e-3
 
 path = os.path.dirname(os.path.abspath(__file__))
@@ -34,7 +34,7 @@ def createScene(rootNode):
         rootNode.createObject('RequiredPlugin', name='SofaPython', pluginName='SofaPython')
 
         #Define gravity along three axis
-        #rootNode.findData('gravity').value= '-9810 0 0'
+        rootNode.findData('gravity').value= '9810 0 0'
         rootNode.createObject('PythonScriptController', filename="controller/Controller.py", classname="controller")
         rootNode.createObject('FreeMotionAnimationLoop')
         rootNode.createObject('GenericConstraintSolver', tolerance="1e-12", maxIterations="10000")
@@ -80,12 +80,12 @@ def createScene(rootNode):
         #pneu1.createObject('UniformMass', totalMass = mass)
 
         #Define stiff layer
-        pneu1.createObject('BoxROI', name='boxROISubTopo', box='80 -5 -10 85 60 60', drawBoxes='0')
+        pneu1.createObject('BoxROI', name='boxROISubTopo', box='68 -5 -10 72 60 60', drawBoxes='1')
         modelSubTopo = pneu1.createChild('modelSubTopo')
         modelSubTopo.createObject('Mesh', position='@loader.position', tetrahedra="@boxROISubTopo.tetrahedraInROI", name='container')
         modelSubTopo.createObject('TetrahedronFEMForceField', template='Vec3d', name='FEM', method='large', poissonRatio='0.3',  youngModulus='1e12')
 
-        pneu1.createObject('BoxROI', name='boxROISubTopo', box='-5 -5 -10 3 60 60', drawBoxes='0')
+        pneu1.createObject('BoxROI', name='boxROISubTopo', box='-5 -5 -10 3 60 60', drawBoxes='1')
         modelSubTopo = pneu1.createChild('modelSubTopo')
         modelSubTopo.createObject('Mesh', position='@loader.position', tetrahedra="@boxROISubTopo.tetrahedraInROI", name='container')
         modelSubTopo.createObject('TetrahedronFEMForceField', template='Vec3d', name='FEM', method='large', poissonRatio='0.3',  youngModulus='1e12')
@@ -97,7 +97,7 @@ def createScene(rootNode):
 
         #Define the cavity inside the chambers
         cavity = pneu1.createChild('cavity')
-        cavity.createObject('MeshSTLLoader', name='cavityLoader', filename='data/mesh/Ex3Cav.stl', translation=[0,0,2.5], rotation = [0,0,0])
+        cavity.createObject('MeshSTLLoader', name='cavityLoader', filename='data/mesh/Ex3Cav.STL', translation=[2,3,3], rotation = [0,0,0])
         cavity.createObject('Mesh', src='@cavityLoader', name='cavityMesh')
         cavity.createObject('MechanicalObject', name='cavity')
         cavity.createObject('SurfacePressureConstraint', name="SurfacePressureConstraint", template='Vec3d', value="0", triangles='@cavityMesh.triangles', drawPressure='1',drawScale='0.0002',  valueType="pressure")
@@ -109,7 +109,7 @@ def createScene(rootNode):
         constraint.createObject('BarycentricMapping')
 
         collisionpneu1 = pneu1.createChild('collisionPneu1')
-        collisionpneu1.createObject('MeshSTLLoader', name='loader', filename='data/mesh/Ex3.stl', translation=[0,0,0], rotation = [0,0,0])
+        collisionpneu1.createObject('MeshSTLLoader', name='loader', filename='data/mesh/Ex3.STL', translation=[0,0,0], rotation = [0,0,0])
         collisionpneu1.createObject('Mesh', src='@loader', name='topo')
         collisionpneu1.createObject('MechanicalObject', name='collisMech')
         collisionpneu1.createObject('Triangle', selfCollision="false")
@@ -118,7 +118,7 @@ def createScene(rootNode):
         collisionpneu1.createObject('BarycentricMapping')
         #OPTIONAL: Create a visual model for the actuators
 
-        #modelVisu = pneu1.createChild('visu')
-        #modelVisu.createObject('MeshSTLLoader', name="loader", filename="data/mesh/Ex3.stl")
-        #modelVisu.createObject('OglModel', src="@loader", template='ExtVec3f', color='0.7 0.7 0 0.6',translation=[0,0,0], rotation = [0,0,0])
-        #modelVisu.createObject('BarycentricMapping')
+        modelVisu = pneu1.createChild('visu')
+        modelVisu.createObject('MeshSTLLoader', name="loader", filename="data/mesh/Ex3.STL")
+        modelVisu.createObject('OglModel', src="@loader", template='ExtVec3f', color='0.7 0.7 0 0.6',translation=[0,0,0], rotation = [0,0,0])
+        modelVisu.createObject('BarycentricMapping')

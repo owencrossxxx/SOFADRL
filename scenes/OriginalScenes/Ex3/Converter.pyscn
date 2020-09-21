@@ -29,10 +29,10 @@ def createScene(rootNode):
 
 		#Specify mesh parameters. These given values in the template don't promise a good mesh!
 	  	node.createObject('MeshGenerationFromPolyhedron',name='gen',template='Vec3d',inputPoints='@mesh.position', inputTriangles='@mesh.triangles',drawTetras='1',
-				        cellSize='30',
-								facetSize='30',
-								cellRatio='5',
-								facetApproximation='0.8'
+				        cellSize='10',
+								facetSize='10',
+								cellRatio='1.5',
+								facetApproximation='0.5'
 								)
 
 		node.createObject('Mesh', position='@gen.outputPoints', tetrahedra='@gen.outputTetras')

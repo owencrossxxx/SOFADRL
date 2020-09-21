@@ -19,11 +19,11 @@ if "Windows" in platform.platform():
     slash = "\\"
 
 # Our Original Scene IMPORT
-originalScene = r'/home/owen/Softwares/plugins/ModelOrderReduction/tools/sofa_test_scene/ex3.py'
+originalScene = r'/home/owen/Softwares/Ext_plugin_repo2/ModelOrderReduction/tools/sofa_test_scene/ex3.py'
 originalScene = os.path.normpath(originalScene)
 originalScene = imp.load_source(originalScene.split(slash)[-1], originalScene)
 
-paramWrapper = ('/pneu', {'paramForcefield': {'periodSaveGIE': 6, 'prepareECSW': True, 'modesPath': '/home/owen/Softwares/plugins/ModelOrderReduction/tools/sofa_test_scene/ex3_output/data/modes.txt', 'nbTrainingSet': 5}, 'paramMORMapping': {'input': '@../MechanicalObject', 'modesPath': '/home/owen/Softwares/plugins/ModelOrderReduction/tools/sofa_test_scene/ex3_output/data/modes.txt'}, 'paramMappedMatrixMapping': {'object1': '@./MechanicalObject', 'object2': '@./MechanicalObject', 'template': 'Vec1d,Vec1d', 'timeInvariantMapping2': True, 'performECSW': False, 'timeInvariantMapping1': True, 'nodeToParse': '@./pneu'}})
+paramWrapper = ('/pneu', {'paramForcefield': {'periodSaveGIE': 6, 'prepareECSW': True, 'modesPath': '/home/owen/Softwares/Ext_plugin_repo2/ModelOrderReduction/tools/sofa_test_scene/new_ex3_output/data/modes.txt', 'nbTrainingSet': 20}, 'paramMORMapping': {'input': '@../MechanicalObject', 'modesPath': '/home/owen/Softwares/Ext_plugin_repo2/ModelOrderReduction/tools/sofa_test_scene/new_ex3_output/data/modes.txt'}, 'paramMappedMatrixMapping': {'object1': '@./MechanicalObject', 'object2': '@./MechanicalObject', 'template': 'Vec1d,Vec1d', 'timeInvariantMapping2': True, 'performECSW': False, 'timeInvariantMapping1': True, 'nodeToParse': '@./pneu'}})
 
 def createScene(rootNode):
 

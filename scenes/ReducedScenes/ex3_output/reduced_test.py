@@ -31,7 +31,7 @@ def Reduced_test(
                   scale=[1.0, 1.0, 1.0],
                   surfaceMeshFileName=False,
                   surfaceColor=[1.0, 1.0, 1.0],
-                  nbrOfModes=3,
+                  nbrOfModes=5,
                   hyperReduction=True):
     """
     Object with an elastic deformation law.
@@ -74,9 +74,9 @@ def Reduced_test(
     pneu.createObject('MeshVTKLoader' , scale3d = multiply(scale,[1.0, 1.0, 1.0]), translation = add(translation,[0, 0, 0]), rotation = add(rotation,[0, 0, 0]), name = 'loader', filename = path + r'/mesh/Ex30.vtu')
     pneu.createObject('TetrahedronSetTopologyContainer' , src = '@loader', name = 'container')
     pneu.createObject('MechanicalObject' , showIndices = 'false', rx = '0', showIndicesScale = '4e-5', name = 'tetras', template = 'Vec3d')
-    pneu.createObject('UniformMass' , totalMass = '0.0378')
+    pneu.createObject('UniformMass' , totalMass = 0.02395482)
     pneu.createObject('HyperReducedTetrahedronFEMForceField' , RIDPath = path + r'/data/reducedFF_pneu_0_RID.txt', name = 'reducedFF_pneu_0', weightsPath = path + r'/data/reducedFF_pneu_0_weight.txt', youngModulus = '330.8', modesPath = path + r'/data/modes.txt', template = 'Vec3d', performECSW = hyperReduction, nbModes = nbrOfModes, method = 'large', poissonRatio = '0.45', drawAsEdges = '1')
-    pneu.createObject('BoxROI' , name= 'membraneROISubTopo' , orientedBox= newBox([[81.0, 60.0, -10.0], [81.0, -5.0, -10.0], [85.0, -5.0, -10.0]] , [0, 0, 0],translation,rotation,[0, 0, 35.0],scale) + multiply(scale[2],[70.0]).tolist(),drawBoxes=True)
+    pneu.createObject('BoxROI' , name= 'membraneROISubTopo' , orientedBox= newBox([[68.0, 60.0, -10.0], [68.0, -5.0, -10.0], [72.0, -5.0, -10.0]] , [0, 0, 0],translation,rotation,[0, 0, 35.0],scale) + multiply(scale[2],[70.0]).tolist(),drawBoxes=True)
     pneu.createObject('BoxROI' , name= 'boxROI' , orientedBox= newBox([[-5.0, 60.0, -10.0], [-5.0, -5.0, -10.0], [3.0, -5.0, -10.0]] , [0, 0, 0],translation,rotation,[0, 0, 35.0],scale) + multiply(scale[2],[70.0]).tolist(),drawBoxes=True)
     pneu.createObject('HyperReducedRestShapeSpringsForceField' , RIDPath = path + r'/data/reducedFF_pneu_2_RID.txt', name = 'reducedFF_pneu_2', weightsPath = path + r'/data/reducedFF_pneu_2_weight.txt', points = '@boxROI.indices', modesPath = path + r'/data/modes.txt', stiffness = '1e8', performECSW = hyperReduction, nbModes = nbrOfModes)
     pneu.createObject('ModelOrderReductionMapping' , input = '@../MechanicalObject', modesPath = path + r'/data/modes.txt', output = '@./tetras')
@@ -88,7 +88,7 @@ def Reduced_test(
 
 
     cavity = pneu.createChild('cavity')
-    cavity.createObject('MeshSTLLoader' , scale3d = multiply(scale,[1.0, 1.0, 1.0]), translation = add(translation,[0.5, 0.5, 2.5]), rotation = add(rotation,[0, 0, 0]), name = 'cavityLoader', filename = path + r'/mesh/Ex3Cav.STL')
+    cavity.createObject('MeshSTLLoader' , scale3d = multiply(scale,[1.0, 1.0, 1.0]), translation = add(translation,[2, 3, 3]), rotation = add(rotation,[0, 0, 0]), name = 'cavityLoader', filename = path + r'/mesh/Ex3Cav.STL')
     cavity.createObject('Mesh' , src = '@cavityLoader', name = 'topo')
     cavity.createObject('MechanicalObject' , name = 'cavity')
     cavity.createObject('SurfacePressureConstraint' , drawScale = '0.0002', name = 'SurfacePressureConstraint', valueType = 'pressure', value = '0.0', drawPressure = '0', template = 'Vec3d', triangles = '@topo.triangles')
@@ -118,9 +118,29 @@ from stlib.scene import MainHeader
 def createScene(rootNode):
     surfaceMeshFileName = False
 
+    rootNode.createObject('FreeMotionAnimationLoop')
+    rootNode.createObject('GenericConstraintSolver', printLog='0', tolerance="1e-15", maxIterations="5000")
+    rootNode.createObject('CollisionPipeline', verbose="0")
+    rootNode.createObject('BruteForceDetection', name="N2")
+    rootNode.createObject('RuleBasedContactManager', name="Response", response="FrictionContact", rules="0 * FrictionContact?mu=0.5" )
+    rootNode.createObject('CollisionResponse', response="FrictionContact", responseParams="mu=0.7")
+    rootNode.createObject('LocalMinDistance', name="Proximity", alarmDistance="2.5", contactDistance="0.5", angleCone="0.01")
+
+    rootNode.createObject('PythonScriptController', filename=path+"/Controller2.py", classname="controller")
+    
+    planeNode = rootNode.createChild('Plane')
+    planeNode.createObject('MeshObjLoader', name='loader', filename="mesh/floorFlat.obj", triangulate="true")
+    planeNode.createObject('Mesh', src="@loader")
+    planeNode.createObject('MechanicalObject', src="@loader", rotation="0 0 90", translation="-5,30,30", scale="1")
+    planeNode.createObject('Triangle',simulated="0", moving="0",group="1")
+    planeNode.createObject('Line',simulated="0", moving="0",group="1")
+    planeNode.createObject('Point',simulated="0", moving="0",group="1")
+    planeNode.createObject('OglModel',name="Visual", fileMesh="mesh/floorFlat.obj", color="1 0 0 1",rotation="0 0 90", translation="0 35 -1", scale="15")
+    planeNode.createObject('UncoupledConstraintCorrection')
+
     MainHeader(rootNode,plugins=["SofaPython","SoftRobots","ModelOrderReduction"],
                         dt=0.01,
-                        gravity=[0.0, -9.81, 0.0])
+                        gravity=[9810.0, 0.0, 0.0])
     rootNode.VisualStyle.displayFlags="showForceFields"
     
     Reduced_test(rootNode,
