@@ -126,7 +126,7 @@ def createScene(rootNode):
     rootNode.createObject('CollisionResponse', response="FrictionContact", responseParams="mu=0.7")
     rootNode.createObject('LocalMinDistance', name="Proximity", alarmDistance="2.5", contactDistance="0.5", angleCone="0.01")
 
-    rootNode.createObject('PythonScriptController', filename=path+"/Controller2.py", classname="controller")
+    rootNode.createObject('PythonScriptController', filename=path+"/Controller.py", classname="controller")
     
     planeNode = rootNode.createChild('Plane')
     planeNode.createObject('MeshObjLoader', name='loader', filename="mesh/floorFlat.obj", triangulate="true")

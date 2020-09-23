@@ -31,6 +31,7 @@ class controller(Sofa.PythonScriptController):
             self.rand = 0
             self.it = 0
             self.switch = 0
+            self.breakPoint = 1
 
             # create pointer towards the MechanicalObject
             self.myMechanicalObjectPointer = self.pneu1Node.getObject('tetras')
@@ -80,7 +81,7 @@ class controller(Sofa.PythonScriptController):
 
         self.it += 1
 
-        if self.it> 500000:
+        if self.it> 500000 and self.breakPoint == 1 :
             with open('pressurevsposition_break.csv', 'wb') as f:
                 wr = csv.writer(f)
                 mylist = [x,y,p]
@@ -88,6 +89,7 @@ class controller(Sofa.PythonScriptController):
                 transpose = array.T
                 mylist = transpose.tolist()
                 wr.writerows(mylist)
+                self.breakPoint = 0
 
         #print(self.it)
         if self.it> 1000000:

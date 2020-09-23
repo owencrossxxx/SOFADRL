@@ -9,7 +9,7 @@ from matplotlib import style
 x = []
 y = []
 p = []
-tmax = 500000
+tmax = 500
 
 class controller(Sofa.PythonScriptController):
 
@@ -60,15 +60,15 @@ class controller(Sofa.PythonScriptController):
             self.pressureConstraint1 = self.pressureConstraint1Node.getObject('SurfacePressureConstraint')
 
             if (c == "="):
-                pressureValue = self.pressureConstraint1.findData('value').value[0][0] + 0.0001
-                if pressureValue > 0.015:
-                    pressureValue = 0.015
+                pressureValue = self.pressureConstraint1.findData('value').value[0][0] + 0.01
+                if pressureValue > 0.03:
+                    pressureValue = 0.03
                 self.pressureConstraint1.findData('value').value = str(pressureValue)
 
             if (c == "-"):
-                pressureValue = self.pressureConstraint1.findData('value').value[0][0] - 0.0001
-                if pressureValue < -0.01:
-                    pressureValue = -0.01
+                pressureValue = self.pressureConstraint1.findData('value').value[0][0] - 0.01
+                if pressureValue < -0.05:
+                    pressureValue = -0.05
                 self.pressureConstraint1.findData('value').value = str(pressureValue)
 
             #p.append(pressureValue)
@@ -93,7 +93,7 @@ class controller(Sofa.PythonScriptController):
         #print 'current state :', myMOpositions[23][0]
 
         if t>= tmax:
-            #self.pneu1Node.getRootContext().animate = False
+            self.pneu1Node.getRootContext().animate = False
 
             plt.figure()
 
