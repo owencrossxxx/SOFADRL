@@ -47,8 +47,7 @@ class controller(Sofa.PythonScriptController):
         # do whatever you want at the beginning of the step
         global pressureValue
         global myMOpositions
-        
-        
+
         # incr = t*1000.0
 
         self.MecaObject1 = self.pneu1Node.getObject('tetras')
@@ -68,15 +67,15 @@ class controller(Sofa.PythonScriptController):
                 self.pressureConstraint1.findData('value').value = str(pressureValue)
         
     
-
         if self.i == 20:
 
-            myMOpositions = self.myMechanicalObjectPointer.findData('position').value
-            c.send(str(myMOpositions[75][0]).encode()) 
+            myMOpositions = self.myMechanicalObjectPointer.findData('position').value[75][0]
+            c.send(str(myMOpositions).encode()) 
 
             self.i = -1
         
         self.i += 1
 
     # called on each animation step
+  
 

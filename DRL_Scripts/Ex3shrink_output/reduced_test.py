@@ -91,7 +91,7 @@ def Reduced_test(
     cavity.createObject('MeshSTLLoader' , scale3d = multiply(scale,[1.0, 1.0, 1.0]), translation = add(translation,[2, 3.11, 3.11]), rotation = add(rotation,[0, 0, 0]), name = 'cavityLoader', filename = path + r'/mesh/Ex3Cav.STL')
     cavity.createObject('Mesh' , src = '@cavityLoader', name = 'topo')
     cavity.createObject('MechanicalObject' , name = 'cavity')
-    cavity.createObject('SurfacePressureConstraint' , drawScale = '0.0002', name = 'SurfacePressureConstraint', valueType = 'pressure', value = '0.0', drawPressure = '0', template = 'Vec3d', triangles = '@topo.triangles')
+    cavity.createObject('SurfacePressureConstraint' , drawScale = '0.0002', name = 'SurfacePressureConstraint', valueType = 'pressure', value = '0.00', drawPressure = '0', template = 'Vec3d', triangles = '@topo.triangles')
     cavity.createObject('BarycentricMapping' , mapMasses = 'false', name = 'mapping', mapForces = 'false')
 
 
@@ -125,7 +125,7 @@ def createScene(rootNode):
     rootNode.createObject('CollisionResponse', response="FrictionContact", responseParams="mu=0.7")
     rootNode.createObject('LocalMinDistance', name="Proximity", alarmDistance="2.5", contactDistance="0.5", angleCone="0.01")
 
-    rootNode.createObject('PythonScriptController', filename=path+"/Controller3.py", classname="controller")
+    rootNode.createObject('PythonScriptController', filename=path+"/ControllerDRL.py", classname="controller")
     
     planeNode = rootNode.createChild('Plane')
     planeNode.createObject('MeshObjLoader', name='loader', filename="mesh/floorFlat.obj", triangulate="true")
